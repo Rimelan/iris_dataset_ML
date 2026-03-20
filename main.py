@@ -53,17 +53,28 @@ def plot_scatter(D,L):
 def calculate_mean(D):
     m= np.mean(D,axis=1)
     return np.array(m).reshape(4,1)
+def covar_mat(D):
+    mean = calculate_mean(data)
+    DCent = D - mean
+    return (DCent @ DCent.T)/float(D.shape[1])
+def pca_compute(D,m):
+    covar = covar_mat(data)
+    U, s, Vh = np.linalg.svd(covar)
+    P = U[:,0:m]
+    return P
+def pca_apply(P,d):
+    return P.T @ d
 
 if __name__ == '__main__':
     data,labels = load_data.load_data("iris.csv")
     plot_histogram(data, labels)
     plot_scatter(data,labels)
-    mean = calculate_mean(data)
-    var = data.var(1)
-    std = data.std(1)
-    DCent = data - mean
-    covar = (DCent @ DCent.T)/float(data.shape[1])
     
+    P = pca_compute(data, m = 4)
+    print(P)
+    PSol = np.load('IRIS_PCA_matrix_m4.npy')
+    print(PSol)
+    test = pca_apply(P, data)
     
     for clss in [0,1,2]:
         print('Class',clss)
