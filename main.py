@@ -1,7 +1,8 @@
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 import load_data
+import my_pca as mpca
+import scipy 
 
 
 def plot_histogram(D,L):
@@ -24,7 +25,7 @@ def plot_histogram(D,L):
         plt.hist(D0[feID,:],bins = 10, density= True,label = 'setosa')
         plt.hist(D1[feID,:],bins = 10, density= True,label = 'versicolor')
         plt.hist(D2[feID,:],bins = 10, density= True,label = 'virginica')
-        plt.savefig('hist_%d.pdf' %feID)
+        plt.savefig('plots/hist_%d.pdf' %feID)
     plt.show() 
     
 def plot_scatter(D,L):
@@ -48,38 +49,24 @@ def plot_scatter(D,L):
             plt.scatter(D0[x1,:],D0[x2,:],label = 'setosa')
             plt.scatter(D1[x1,:],D1[x2,:],label = 'versicolor')
             plt.scatter(D2[x1,:],D2[x2,:],label = 'virginica')
-            plt.savefig('hist_%d_%d.pdf' %(x1,x2))
+            plt.savefig('plots/scatter%d_%d.pdf' %(x1,x2))
     plt.show()
-def calculate_mean(D):
-    m= np.mean(D,axis=1)
-    return np.array(m).reshape(4,1)
-def covar_mat(D):
-    mean = calculate_mean(data)
-    DCent = D - mean
-    return (DCent @ DCent.T)/float(D.shape[1])
-def pca_compute(D,m):
-    covar = covar_mat(data)
-    U, s, Vh = np.linalg.svd(covar)
-    P = U[:,0:m]
-    return P
-def pca_apply(P,d):
-    return P.T @ d
+
 
 if __name__ == '__main__':
     data,labels = load_data.load_data("iris.csv")
     plot_histogram(data, labels)
     plot_scatter(data,labels)
-    
-    P = pca_compute(data, m = 4)
+    P = mpca.pca_compute(data, m = 4)
     print(P)
     PSol = np.load('IRIS_PCA_matrix_m4.npy')
     print(PSol)
-    test = pca_apply(P, data)
+    pcaD = mpca.pca_apply(P, data)
     
     for clss in [0,1,2]:
         print('Class',clss)
         DClass = data[:, labels==clss]
-        mean_class= calculate_mean(DClass)
+        mean_class= mpca.calculate_mean(DClass)
         print('Mean: ', mean_class)
         var_class = DClass.var(1)
         std_class = DClass.std(1)
